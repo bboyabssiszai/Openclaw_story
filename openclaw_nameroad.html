@@ -1,0 +1,537 @@
+<!DOCTYPE html>  
+
+<html lang="zh-CN">  
+
+<head>  
+
+    <meta charset="UTF-8">  
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+
+    <title>龙虾蜕壳记：寻找完美名字</title>  
+
+    <style>  
+
+        :root {  
+
+            --bg-color: #0f172a;  
+
+            --text-color: #f8fafc;  
+
+            --primary: #ef4444; /* 龙虾红 */  
+
+            --secondary: #3b82f6;  
+
+            --panel-bg: #1e293b;  
+
+        }  
+
+  
+
+        body {  
+
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;  
+
+            background-color: var(--bg-color);  
+
+            color: var(--text-color);  
+
+            display: flex;  
+
+            justify-content: center;  
+
+            align-items: center;  
+
+            height: 100vh;  
+
+            margin: 0;  
+
+            overflow: hidden;  
+
+        }  
+
+  
+
+        #game-container {  
+
+            background-color: var(--panel-bg);  
+
+            width: 90%;  
+
+            max-width: 600px;  
+
+            padding: 30px;  
+
+            border-radius: 15px;  
+
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);  
+
+            text-align: center;  
+
+            position: relative;  
+
+            border: 2px solid #334155;  
+
+        }  
+
+  
+
+        h1 { color: var(--primary); margin-bottom: 5px; }  
+
+        .subtitle { color: #94a3b8; font-size: 0.9em; margin-bottom: 20px; }  
+
+  
+
+        .mascot {  
+
+            font-size: 80px;  
+
+            margin: 20px 0;  
+
+            transition: all 0.3s ease;  
+
+            display: inline-block;  
+
+        }  
+
+  
+
+        .dialogue {  
+
+            font-size: 1.2em;  
+
+            line-height: 1.6;  
+
+            min-height: 100px;  
+
+            margin-bottom: 20px;  
+
+            padding: 15px;  
+
+            background: #0f172a;  
+
+            border-radius: 8px;  
+
+            border-left: 4px solid var(--secondary);  
+
+        }  
+
+  
+
+        .btn {  
+
+            background-color: var(--primary);  
+
+            color: white;  
+
+            border: none;  
+
+            padding: 12px 24px;  
+
+            font-size: 1.1em;  
+
+            border-radius: 8px;  
+
+            cursor: pointer;  
+
+            transition: transform 0.1s, background-color 0.2s;  
+
+            margin: 5px;  
+
+            font-weight: bold;  
+
+        }  
+
+  
+
+        .btn:hover { background-color: #dc2626; transform: scale(1.05); }  
+
+        .btn:active { transform: scale(0.95); }  
+
+          
+
+        .btn-secondary { background-color: var(--secondary); }  
+
+        .btn-secondary:hover { background-color: #2563eb; }  
+
+  
+
+        /* 特殊动画类 */  
+
+        .shake { animation: shake 0.5s infinite; }  
+
+        @keyframes shake {  
+
+            0% { transform: translate(1px, 1px) rotate(0deg); }  
+
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }  
+
+            20% { transform: translate(-3px, 0px) rotate(1deg); }  
+
+            30% { transform: translate(3px, 2px) rotate(0deg); }  
+
+            40% { transform: translate(1px, -1px) rotate(1deg); }  
+
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }  
+
+            60% { transform: translate(-3px, 1px) rotate(0deg); }  
+
+            70% { transform: translate(3px, 1px) rotate(-1deg); }  
+
+            80% { transform: translate(-1px, -1px) rotate(1deg); }  
+
+            90% { transform: translate(1px, 2px) rotate(0deg); }  
+
+            100% { transform: translate(1px, -2px) rotate(-1deg); }  
+
+        }  
+
+  
+
+        .molt-animation { animation: molt 1s forwards; }  
+
+        @keyframes molt {  
+
+            0% { transform: scale(1); opacity: 1; filter: hue-rotate(0deg); }  
+
+            50% { transform: scale(1.5) rotate(10deg); filter: hue-rotate(90deg); opacity: 0.5; }  
+
+            100% { transform: scale(1); opacity: 1; filter: hue-rotate(0deg); }  
+
+        }  
+
+  
+
+        .hidden { display: none !important; }  
+
+  
+
+        #stats {  
+
+            display: flex;  
+
+            justify-content: space-around;  
+
+            margin-top: 20px;  
+
+            font-size: 0.9em;  
+
+            color: #64748b;  
+
+        }  
+
+    </style>  
+
+</head>  
+
+<body>  
+
+  
+
+    <div id="game-container">  
+
+        <h1 id="title">周末项目生成器</h1>  
+
+        <div class="subtitle" id="subtitle">作者：Peter</div>  
+
+          
+
+        <div class="mascot" id="mascot">💻</div>  
+
+          
+
+        <div class="dialogue" id="dialogue">  
+
+            两个月前，你随手写了一个周末项目。<br>它能连接你的聊天软件。你要给它起个什么名字？  
+
+        </div>  
+
+          
+
+        <div id="controls">  
+
+            <button class="btn btn-secondary" onclick="startGame()">命名为: WhatsApp Relay</button>  
+
+        </div>  
+
+  
+
+        <div id="stats" class="hidden">  
+
+            <span id="stat-stars">⭐ 0 GitHub Stars</span>  
+
+            <span id="stat-visitors">👀 0 访客</span>  
+
+        </div>  
+
+    </div>  
+
+  
+
+    <script>  
+
+        // 游戏状态和DOM元素  
+
+        let stage = 0;  
+
+        const titleEl = document.getElementById('title');  
+
+        const mascotEl = document.getElementById('mascot');  
+
+        const dialogueEl = document.getElementById('dialogue');  
+
+        const controlsEl = document.getElementById('controls');  
+
+        const statsEl = document.getElementById('stats');  
+
+        const starsEl = document.getElementById('stat-stars');  
+
+        const visitorsEl = document.getElementById('stat-visitors');  
+
+  
+
+        function updateScene(title, mascot, dialogue, buttons, showStats = false) {  
+
+            titleEl.innerText = title;  
+
+            mascotEl.innerText = mascot;  
+
+            dialogueEl.innerHTML = dialogue;  
+
+              
+
+            controlsEl.innerHTML = '';  
+
+            buttons.forEach(btn => {  
+
+                const button = document.createElement('button');  
+
+                button.className = btn.class || 'btn';  
+
+                button.innerText = btn.text;  
+
+                button.onclick = btn.action;  
+
+                controlsEl.appendChild(button);  
+
+            });  
+
+  
+
+            if (showStats) {  
+
+                statsEl.classList.remove('hidden');  
+
+            } else {  
+
+                statsEl.classList.add('hidden');  
+
+            }  
+
+        }  
+
+  
+
+        function triggerMolt() {  
+
+            mascotEl.classList.add('molt-animation');  
+
+            setTimeout(() => {  
+
+                mascotEl.classList.remove('molt-animation');  
+
+            }, 1000);  
+
+        }  
+
+  
+
+        // 关卡 1: WhatsApp Relay的爆火  
+
+        function startGame() {  
+
+            statsEl.classList.remove('hidden');  
+
+            mascotEl.innerText = "🚀";  
+
+            titleEl.innerText = "WhatsApp Relay";  
+
+            dialogueEl.innerHTML = "不可思议！短短一周内，你的项目获得了 <strong>100,000 个 GitHub Star</strong> 和 <strong>200万 访客</strong>！<br><br>但等等...这个名字太普通了，而且像是WhatsApp的附属品。你需要进行第一次“蜕壳”升级！";  
+
+            starsEl.innerText = "⭐ 100,000+";  
+
+            visitorsEl.innerText = "👀 2,000,000+";  
+
+              
+
+            controlsEl.innerHTML = '';  
+
+            const btn = document.createElement('button');  
+
+            btn.className = 'btn';  
+
+            btn.innerText = "开始构思新名字！";  
+
+            btn.onclick = stageClawd;  
+
+            controlsEl.appendChild(btn);  
+
+        }  
+
+  
+
+        // 关卡 2: Clawd 阶段 (Anthropic的律师警告)  
+
+        function stageClawd() {  
+
+            triggerMolt();  
+
+            updateScene(  
+
+                "Clawd",   
+
+                "🦞",   
+
+                "你想到了一个绝妙的谐音梗！用“Claw”(龙虾钳)致敬著名的AI“Claude”。<br>这个名字叫 <strong>Clawd</strong> (诞生于2025年11月)。<br><br>它感觉太完美了！直到...<br><span style='color: #ef4444;'>⚠️ Anthropic 的法务团队发来了一封礼貌的邮件，请你重新考虑这个名字。</span>",  
+
+                [  
+
+                    { text: "惹不起，赶紧认怂并再次蜕壳！", action: stageMoltbot }  
+
+                ],  
+
+                true  
+
+            );  
+
+        }  
+
+  
+
+        // 关卡 3: Moltbot 阶段 (拗口的凌晨5点决定)  
+
+        function stageMoltbot() {  
+
+            triggerMolt();  
+
+            mascotEl.classList.add('shake');  
+
+            updateScene(  
+
+                "Moltbot",   
+
+                "🦞💬",   
+
+                "凌晨 5 点，你在 Discord 社区和大家疯狂头脑风暴。<br>你们决定叫它 <strong>Moltbot</strong>！<br>Molt 代表蜕壳和成长，就像龙虾褪去旧壳变得更强大。寓意很深刻！<br><br>但是...你可以试着快速读三遍：Moltbot, Moltbot, Moltbot... <br>太拗口了！舌头都要打结了！",  
+
+                [  
+
+                    { text: "念不清楚！进行最终蜕壳！", action: stageOpenClawCheck }  
+
+                ],  
+
+                true  
+
+            );  
+
+        }  
+
+  
+
+        // 关卡 4: 准备最终形态 - 做足功课  
+
+        function stageOpenClawCheck() {  
+
+            mascotEl.classList.remove('shake');  
+
+            triggerMolt();  
+
+            updateScene(  
+
+                "寻找最终形态...",   
+
+                "🕵️‍♂️🦞",   
+
+                "这次我们吸取教训，在公布新名字前必须做好功课！<br>请完成以下检查清单：",  
+
+                [  
+
+                    { text: "✔️ 检查商标局 (清除侵权风险)", action: () => document.getElementById('chk1').style.color = '#10b981', class: 'btn btn-secondary' },  
+
+                    { text: "✔️ 购买相关域名", action: () => document.getElementById('chk2').style.color = '#10b981', class: 'btn btn-secondary' },  
+
+                    { text: "✔️ 编写迁移代码", action: () => document.getElementById('chk3').style.color = '#10b981', class: 'btn btn-secondary' },  
+
+                    { text: "✨ 宣布最终名字！", action: checkReady }  
+
+                ]  
+
+            );  
+
+            dialogueEl.innerHTML += `<br><br>  
+
+                <div id="chk1">⭕ 商标搜索完毕</div>  
+
+                <div id="chk2">⭕ 域名已购买</div>  
+
+                <div id="chk3">⭕ 代码已迁移</div>`;  
+
+        }  
+
+  
+
+        function checkReady() {  
+
+            const c1 = document.getElementById('chk1').style.color;  
+
+            const c2 = document.getElementById('chk2').style.color;  
+
+            const c3 = document.getElementById('chk3').style.color;  
+
+              
+
+            if (c1 && c2 && c3) {  
+
+                stageOpenClawFinal();  
+
+            } else {  
+
+                alert("请先完成所有准备工作（点击前三个按钮），否则法务部又要来敲门了！");  
+
+            }  
+
+        }  
+
+  
+
+        // 关卡 5: OpenClaw 最终胜利  
+
+        function stageOpenClawFinal() {  
+
+            triggerMolt();  
+
+            updateScene(  
+
+                "OpenClaw",   
+
+                "✨🦞✨",   
+
+                "🎉 恭喜你！龙虾蜕变成了它的最终形态：<strong>OpenClaw</strong>！<br><br><strong>Open:</strong> 开源，面向所有人，社区驱动。<br><strong>Claw:</strong> 致敬我们的龙虾血统与起源。<br><br><em>“你的助手。你的机器。你的规则。”</em><br>它不仅支持微信、TG、Discord等聊天软件，数据还完全掌握在你自己手中！",  
+
+                [  
+
+                    { text: "访问 openclaw.ai 开始探索", action: () => alert("感谢体验这段命名之旅！加入 Claw Crew，一起为开源贡献力量！") },  
+
+                    { text: "重新回顾命名史", action: () => location.reload(), class: "btn btn-secondary"}  
+
+                ]  
+
+            );  
+
+        }  
+
+    </script>  
+
+</body>  
+
+</html>  
