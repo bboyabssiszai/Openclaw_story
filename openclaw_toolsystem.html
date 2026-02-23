@@ -1,0 +1,342 @@
+<!DOCTYPE html>  
+<html lang="zh-CN">  
+<head>  
+    <meta charset="UTF-8">  
+    <title>Openclaw: 架构觉醒</title>  
+    <style>  
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+SC:wght@700&display=swap');  
+  
+        :root {  
+            --bg-color: #1a1a2e;  
+            --panel-bg: #16213e;  
+            --text-color: #32e0c4;  
+            --border-color: #0f3460;  
+            --highlight: #e94560;  
+        }  
+  
+        body {  
+            background-color: var(--bg-color);  
+            color: var(--text-color);  
+            font-family: 'Noto Sans SC', sans-serif; /* 对话使用清晰中文字体 */  
+            display: flex;  
+            justify-content: center;  
+            align-items: center;  
+            height: 100vh;  
+            margin: 0;  
+            overflow: hidden;  
+        }  
+  
+        /* 像素风外框 */  
+        #game-container {  
+            width: 800px;  
+            height: 600px;  
+            background-color: var(--panel-bg);  
+            border: 4px solid var(--border-color);  
+            box-shadow: 8px 8px 0px #000;  
+            display: flex;  
+            flex-direction: column;  
+            position: relative;  
+        }  
+  
+        /* 顶部系统架构展示区 */  
+        #system-board {  
+            flex: 1;  
+            border-bottom: 4px solid var(--border-color);  
+            padding: 20px;  
+            display: flex;  
+            flex-wrap: wrap;  
+            align-content: flex-start;  
+            gap: 15px;  
+            background: repeating-linear-gradient(  
+                45deg,  
+                #16213e,  
+                #16213e 10px,  
+                #1a1a2e 10px,  
+                #1a1a2e 20px  
+            );  
+        }  
+  
+        .node {  
+            background: #000;  
+            border: 2px solid var(--text-color);  
+            padding: 10px;  
+            font-family: 'Press Start 2P', monospace;  
+            font-size: 10px;  
+            color: #fff;  
+            opacity: 0;  
+            transform: translateY(20px);  
+            transition: all 0.5s ease;  
+            box-shadow: 2px 2px 0px var(--text-color);  
+        }  
+  
+        .node.visible {  
+            opacity: 1;  
+            transform: translateY(0);  
+        }  
+  
+        .node.highlight {  
+            border-color: var(--highlight);  
+            box-shadow: 2px 2px 0px var(--highlight);  
+            animation: pulse 1s infinite;  
+        }  
+  
+        /* 舞台区：角色展示 */  
+        #stage {  
+            height: 150px;  
+            display: flex;  
+            justify-content: space-between;  
+            align-items: flex-end;  
+            padding: 0 50px;  
+            position: relative;  
+        }  
+  
+        /* 纯 CSS 像素角色 */  
+        .character {  
+            width: 64px;  
+            height: 64px;  
+            position: relative;  
+            transition: transform 0.2s;  
+        }  
+        .character.speaking {  
+            transform: translateY(-10px);  
+        }  
+  
+        /* 新手 Byte (蓝色) */  
+        #byte {  
+            background: transparent;  
+            box-shadow:   
+                24px 8px #4ea8de, 32px 8px #4ea8de,  
+                16px 16px #4ea8de, 24px 16px #fff, 32px 16px #fff, 40px 16px #4ea8de,  
+                16px 24px #4ea8de, 24px 24px #000, 32px 24px #000, 40px 24px #4ea8de,  
+                24px 32px #4ea8de, 32px 32px #4ea8de,  
+                16px 40px #4ea8de, 24px 40px #4ea8de, 32px 40px #4ea8de, 40px 40px #4ea8de,  
+                8px 48px #4ea8de, 16px 48px #4ea8de, 40px 48px #4ea8de, 48px 48px #4ea8de,  
+                16px 56px #4ea8de, 40px 56px #4ea8de;  
+        }  
+  
+        /* 大师 Claw (橙色猫爪机器人) */  
+        #claw {  
+            background: transparent;  
+            box-shadow:   
+                16px 8px #e07a5f, 40px 8px #e07a5f,  
+                16px 16px #e07a5f, 24px 16px #e07a5f, 32px 16px #e07a5f, 40px 16px #e07a5f,  
+                8px 24px #e07a5f, 16px 24px #fff, 40px 24px #fff, 48px 24px #e07a5f,  
+                8px 32px #e07a5f, 16px 32px #000, 40px 32px #000, 48px 32px #e07a5f,  
+                16px 40px #e07a5f, 24px 40px #e07a5f, 32px 40px #e07a5f, 40px 40px #e07a5f,  
+                24px 48px #e07a5f, 32px 48px #e07a5f,  
+                16px 56px #e07a5f, 40px 56px #e07a5f;  
+            transform: scaleX(-1); /* 面向左边 */  
+        }  
+        #claw.speaking {  
+            transform: scaleX(-1) translateY(-10px);  
+        }  
+  
+        /* 对话框区 */  
+        #dialogue-box {  
+            height: 150px;  
+            background: #000;  
+            border-top: 4px solid var(--border-color);  
+            padding: 20px;  
+            box-sizing: border-box;  
+            position: relative;  
+        }  
+  
+        #speaker-name {  
+            font-family: 'Press Start 2P', monospace;  
+            font-size: 12px;  
+            color: var(--highlight);  
+            margin-bottom: 10px;  
+        }  
+  
+        #dialogue-text {  
+            font-size: 16px;  
+            line-height: 1.5;  
+            color: #fff;  
+            min-height: 50px;  
+        }  
+  
+        /* 动作按钮 */  
+        #action-btn {  
+            position: absolute;  
+            bottom: 20px;  
+            right: 20px;  
+            background: var(--text-color);  
+            color: #000;  
+            border: none;  
+            padding: 10px 15px;  
+            font-family: 'Press Start 2P', monospace;  
+            font-size: 10px;  
+            cursor: pointer;  
+            box-shadow: 2px 2px 0px #fff;  
+            display: none;  
+        }  
+  
+        #action-btn:hover {  
+            background: #fff;  
+            box-shadow: 2px 2px 0px var(--text-color);  
+        }  
+  
+        #next-btn {  
+            position: absolute;  
+            bottom: 20px;  
+            right: 20px;  
+            background: transparent;  
+            color: var(--text-color);  
+            border: 2px solid var(--text-color);  
+            padding: 5px 10px;  
+            font-family: 'Press Start 2P', monospace;  
+            font-size: 10px;  
+            cursor: pointer;  
+            animation: blink 1s infinite;  
+        }  
+  
+        @keyframes pulse {  
+            0% { transform: scale(1); }  
+            50% { transform: scale(1.05); }  
+            100% { transform: scale(1); }  
+        }  
+  
+        @keyframes blink {  
+            0%, 100% { opacity: 1; }  
+            50% { opacity: 0; }  
+        }  
+    </style>  
+</head>  
+<body>  
+  
+<div id="game-container">  
+    <div id="system-board">  
+        <!-- 节点将动态注入到这里 -->  
+    </div>  
+      
+    <div id="stage">  
+        <div id="byte" class="character"></div>  
+        <div id="claw" class="character"></div>  
+    </div>  
+  
+    <div id="dialogue-box">  
+        <div id="speaker-name">Speaker</div>  
+        <div id="dialogue-text"></div>  
+        <button id="next-btn" onclick="nextDialogue()">NEXT ▼</button>  
+        <button id="action-btn" onclick="executeAction()"></button>  
+    </div>  
+</div>  
+  
+<script>  
+    // 游戏剧情和逻辑数据  
+    const story = [  
+        { speaker: "Byte", text: "Claw大师，我遇到一个难题！我想让Agent每天早晨抓取A股资讯，如果大跌，就立刻自动拨打老板的电话汇报。但我发现OpenAI定义的Tool在这里很难用，我无法直接上传Tool。" },  
+        { speaker: "Claw", text: "冷静，Byte。欢迎来到 Openclaw 的世界。这里的工具概念被弱化了。一般用户无法随意构建完全暴露的tool。但我们有内置的Web和CLI工具，更重要的是..." },  
+        { speaker: "Claw", text: "你可以用 Plugin 注册工具，或者最简单的：在 script 目录下写个 Python 或 Bash 脚本。比如 `wind_get.py`。来，尝试创建你的底层脚本。" , action: { label: "[动作] 编写 script", node: "Script: wind_get.py", type: "base" } },  
+        { speaker: "Byte", text: "哇，脚本写好了！但光有脚本，Agent 怎么知道怎么用它？" },  
+        { speaker: "Claw", text: "这就是 Skill (技能) 的作用！Skill 实现了对 Tool 的完备描述。比如我们内置的 `voice_call` 功能，它的 Skill 仅仅包含 metadata 和 instruction 就可以运行。" },  
+        { speaker: "Claw", text: "你需要在 instruction 中编排你的脚本和内置工具。把它包装成一个完整的 Skill！", action: { label: "[动作] 封装 Skill", node: "Skill: Stock_Report", type: "skill" } },  
+        { speaker: "Byte", text: "我明白了！如果我想把 '查询资讯' 和 '语音通话' 结合起来执行复杂任务呢？" },  
+        { speaker: "Claw", text: "在单个 Skill 内，你可以在 instruction 里规定何时启动哪个 .py 文件，如何组合。如果更复杂，你可以将多个 Skill 组合成 Skilltree (技能树) 或 Skillkit (技能包)！", action: { label: "[动作] 组合 Skilltree", node: "Skilltree: Emergency_Call", type: "combo" } },  
+        { speaker: "Byte", text: "太强了！可是...Agent 怎么知道老板的电话号码？难道要写死在代码里？如果我想在打电话前做个安全校验呢？" },  
+        { speaker: "Claw", text: "这时候就需要 Skill 的附件(扩展)了。使用 Reference 附件，它可以像 RAG 一样检索你的通讯录文档；使用 Hook 附件，编写规则脚本在执行拨号前后进行拦截或校验。", action: { label: "[动作] 挂载附件", node: "Hook & Reference", type: "ext" } },  
+        { speaker: "Byte", text: "系统越来越庞大了！如果在打电话时，主线任务卡住了怎么办？而且我不想让普通员工用这个拨号功能。" },  
+        { speaker: "Claw", text: "高级操作来了。卡住？用 Subagent (子智能体) 替换当前实例，让主线对话继续。权限管理？我们在工具层面有 Allow/Deny，还可以把相似工具放进 工具组(Group)，比如 `group:memory`。", action: { label: "[动作] 设置权限与子体", node: "Subagent & Allow/Deny", type: "adv" } },  
+        { speaker: "Byte", text: "这简直是个完美的系统！最后，我怎么让它每天早晨自动运行呢？" },  
+        { speaker: "Claw", text: "使用特殊的工具：Cron。另外，如果你觉得这段工作流太常用，Openclaw 可以用 Lobster 机制将它缓存下来。甚至...", action: { label: "[动作] 部署 Cron & Lobster", node: "Cron & Lobster", type: "auto" } },  
+        { speaker: "Claw", text: "你可以用 skill-creator 让 Openclaw 自己为自己创建工具，这被称为 Self-generated skills (自生成技能)！", action: { label: "[终极动作] 开启自生成", node: "Self-Generated Skills", type: "ultimate" } },  
+        { speaker: "Byte", text: "原来如此！从底层的 Script，到指令编排的 Skill，再到高级的 Hook、Subagent 和 Lobster缓存... 我已经完全掌握 Openclaw 的工具系统了！" }  
+    ];  
+  
+    let currentStep = 0;  
+    let typeWriterInterval;  
+    let isTyping = false;  
+  
+    const dialogueText = document.getElementById('dialogue-text');  
+    const speakerName = document.getElementById('speaker-name');  
+    const nextBtn = document.getElementById('next-btn');  
+    const actionBtn = document.getElementById('action-btn');  
+    const systemBoard = document.getElementById('system-board');  
+    const byteSprite = document.getElementById('byte');  
+    const clawSprite = document.getElementById('claw');  
+  
+    function renderStep() {  
+        const step = story[currentStep];  
+          
+        // 角色跳动动画  
+        byteSprite.className = step.speaker === "Byte" ? "character speaking" : "character";  
+        clawSprite.className = step.speaker === "Claw" ? "character speaking" : "character";  
+  
+        speakerName.style.color = step.speaker === "Byte" ? "#4ea8de" : "#e07a5f";  
+        speakerName.innerText = step.speaker;  
+          
+        // 打字机效果  
+        isTyping = true;  
+        nextBtn.style.display = "none";  
+        actionBtn.style.display = "none";  
+        dialogueText.innerText = "";  
+          
+        let charIndex = 0;  
+        clearInterval(typeWriterInterval);  
+        typeWriterInterval = setInterval(() => {  
+            dialogueText.innerText += step.text.charAt(charIndex);  
+            charIndex++;  
+            if (charIndex >= step.text.length) {  
+                clearInterval(typeWriterInterval);  
+                isTyping = false;  
+                showButtons(step);  
+            }  
+        }, 30); // 打字速度  
+    }  
+  
+    function showButtons(step) {  
+        if (step.action) {  
+            actionBtn.innerText = step.action.label;  
+            actionBtn.style.display = "block";  
+            nextBtn.style.display = "none";  
+        } else {  
+            actionBtn.style.display = "none";  
+            if (currentStep < story.length - 1) {  
+                nextBtn.style.display = "block";  
+            }  
+        }  
+    }  
+  
+    function nextDialogue() {  
+        if (isTyping) {  
+            // 如果正在打字，点击跳过动画直接显示全段  
+            clearInterval(typeWriterInterval);  
+            dialogueText.innerText = story[currentStep].text;  
+            isTyping = false;  
+            showButtons(story[currentStep]);  
+            return;  
+        }  
+  
+        if (currentStep < story.length - 1) {  
+            currentStep++;  
+            renderStep();  
+        }  
+    }  
+  
+    function executeAction() {  
+        const step = story[currentStep];  
+          
+        // 在系统面板生成节点  
+        const node = document.createElement('div');  
+        node.className = 'node';  
+        if (step.action.type === 'ultimate') node.classList.add('highlight');  
+        node.innerText = step.action.node;  
+        systemBoard.appendChild(node);  
+          
+        // 触发动画  
+        setTimeout(() => {  
+            node.classList.add('visible');  
+        }, 50);  
+  
+        // 隐藏动作按钮，进入下一步  
+        actionBtn.style.display = "none";  
+        currentStep++;  
+        renderStep();  
+    }  
+  
+    // 初始化游戏  
+    renderStep();  
+  
+</script>  
+</body>  
+</html>  
