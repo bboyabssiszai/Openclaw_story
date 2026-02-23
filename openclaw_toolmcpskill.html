@@ -1,0 +1,308 @@
+<!DOCTYPE html>  
+<html lang="zh-CN">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>AI概念辨析：Tool vs MCP vs Skill</title>  
+    <style>  
+        :root {  
+            --bg-color: #f4f7f6;  
+            --card-bg: #ffffff;  
+            --tool-color: #3498db;  
+            --mcp-color: #9b59b6;  
+            --skill-color: #2ecc71;  
+            --text-dark: #2c3e50;  
+        }  
+  
+        body {  
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;  
+            background-color: var(--bg-color);  
+            color: var(--text-dark);  
+            margin: 0;  
+            padding: 20px;  
+            display: flex;  
+            flex-direction: column;  
+            align-items: center;  
+        }  
+  
+        .header {  
+            text-align: center;  
+            max-width: 800px;  
+            margin-bottom: 20px;  
+        }  
+  
+        .definitions {  
+            display: flex;  
+            gap: 15px;  
+            margin-bottom: 30px;  
+            max-width: 900px;  
+        }  
+  
+        .def-card {  
+            background: var(--card-bg);  
+            padding: 15px;  
+            border-radius: 8px;  
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);  
+            flex: 1;  
+            border-top: 4px solid;  
+        }  
+  
+        .def-card.tool { border-color: var(--tool-color); }  
+        .def-card.mcp { border-color: var(--mcp-color); }  
+        .def-card.skill { border-color: var(--skill-color); }  
+  
+        .game-container {  
+            background: var(--card-bg);  
+            width: 100%;  
+            max-width: 800px;  
+            border-radius: 12px;  
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);  
+            padding: 30px;  
+            text-align: center;  
+            position: relative;  
+        }  
+  
+        .scenario-title {  
+            font-size: 1.2rem;  
+            color: #7f8c8d;  
+            margin-bottom: 10px;  
+            font-weight: bold;  
+        }  
+  
+        .question-card {  
+            font-size: 1.4rem;  
+            margin: 30px 0;  
+            padding: 30px;  
+            background: #ecf0f1;  
+            border-radius: 10px;  
+            min-height: 120px;  
+            display: flex;  
+            align-items: center;  
+            justify-content: center;  
+            transition: all 0.3s ease;  
+        }  
+  
+        .btn-group {  
+            display: flex;  
+            justify-content: center;  
+            gap: 20px;  
+        }  
+  
+        button {  
+            padding: 15px 30px;  
+            font-size: 1.1rem;  
+            border: none;  
+            border-radius: 30px;  
+            cursor: pointer;  
+            color: white;  
+            font-weight: bold;  
+            transition: transform 0.2s, box-shadow 0.2s;  
+        }  
+  
+        button:hover {  
+            transform: translateY(-2px);  
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);  
+        }  
+  
+        .btn-tool { background-color: var(--tool-color); }  
+        .btn-mcp { background-color: var(--mcp-color); }  
+        .btn-skill { background-color: var(--skill-color); }  
+  
+        .feedback {  
+            margin-top: 25px;  
+            padding: 15px;  
+            border-radius: 8px;  
+            display: none;  
+            font-size: 1.1rem;  
+            line-height: 1.5;  
+        }  
+  
+        .feedback.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }  
+        .feedback.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }  
+  
+        .next-btn {  
+            margin-top: 20px;  
+            background-color: #34495e;  
+            display: none;  
+        }  
+  
+        .score-board {  
+            position: absolute;  
+            top: 20px;  
+            right: 20px;  
+            font-weight: bold;  
+            font-size: 1.1rem;  
+        }  
+  
+        .hidden { display: none !important; }  
+    </style>  
+</head>  
+<body>  
+  
+    <div class="header">  
+        <h1>Agent组件辨析大师 🎮</h1>  
+        <p>作为一个AI Agent开发者，你需要为你的Agent配备合适的武器。请先阅读以下定义，然后开始挑战！</p>  
+    </div>  
+  
+    <div class="definitions">  
+        <div class="def-card tool">  
+            <h3 style="color: var(--tool-color); margin-top:0;">🔧 Tool (工具)</h3>  
+            <p><strong>OpenAI定义的标准工具：</strong>无状态的、单一职责的函数调用（Function Calling）。输入明确的参数，返回明确的计算结果或执行单一动作。</p>  
+        </div>  
+        <div class="def-card mcp">  
+            <h3 style="color: var(--mcp-color); margin-top:0;">🔌 MCP (模型上下文协议)</h3>  
+            <p><strong>Anthropic推出的协议：</strong>一种标准化的连接层，专门用于将大模型安全地连接到本地或外部的数据源/系统，为模型提供环境上下文。</p>  
+        </div>  
+        <div class="def-card skill">  
+            <h3 style="color: var(--skill-color); margin-top:0;">📚 Skill (技能)</h3>  
+            <p><strong>AgentSkills体系：</strong>一整套行为包。不仅包含底层工具，还包含元数据(Metadata)、系统指令(Instruction)、流程规则以及参考附件，教Agent“如何做一件事”。</p>  
+        </div>  
+    </div>  
+  
+    <div class="game-container" id="game-board">  
+        <div class="score-board">得分: <span id="score">0</span> / 6</div>  
+        <div class="scenario-title" id="scenario-title">加载中...</div>  
+          
+        <div class="question-card" id="question-text">  
+            题目加载中...  
+        </div>  
+  
+        <div class="btn-group" id="options">  
+            <button class="btn-tool" onclick="checkAnswer('Tool')">这是 Tool</button>  
+            <button class="btn-mcp" onclick="checkAnswer('MCP')">这是 MCP</button>  
+            <button class="btn-skill" onclick="checkAnswer('Skill')">这是 Skill</button>  
+        </div>  
+  
+        <div id="feedback" class="feedback"></div>  
+        <button id="next-btn" class="next-btn" onclick="nextQuestion()">下一题 ➔</button>  
+    </div>  
+  
+    <script>  
+        const questions = [  
+            // 场景一：互联网公司商业化变现  
+            {  
+                scenario: "场景一：互联网公司商业化（广告变现）",  
+                text: "一个名为 `calculate_ecpm(clicks, impressions, revenue)` 的API函数。模型向其传入三个数值，它直接返回千次展示收益的计算结果。",  
+                answer: "Tool",  
+                explanation: "正确！这是标准的 <b>Tool</b>。它是一个无状态的计算函数，就像给模型递了一把计算器，一问一答，输入参数即可得到结果。"  
+            },  
+            {  
+                scenario: "场景一：互联网公司商业化（广告变现）",  
+                text: "一个安全连接服务：它提供标准化接口，让大模型能直接读取公司内部实时的 Hadoop 广告用户画像数据库，而无需硬编码数据库密码。",  
+                answer: "MCP",  
+                explanation: "正确！这是 <b>MCP (模型上下文协议)</b>。它不只是简单的函数，而是作为一个标准的双向桥梁，将外部环境（公司私有数据库）转化为模型可读取的上下文。"  
+            },  
+            {  
+                scenario: "场景一：互联网公司商业化（广告变现）",  
+                text: "一个名为“制定大促广告出价策略”的配置包。里面包含：<br>1. 指令：'必须先查阅竞品历史出价，且利润率不得低于15%'<br>2. 附件：2023年双十一成功出价案例.pdf<br>3. 绑定的API工具",  
+                answer: "Skill",  
+                explanation: "正确！这是 <b>Skill</b>。它是一套完整的操作手册，包含了Metadata、Instruction（指令）和附件。它赋予了Agent完成某个复杂商业化任务的完整'知识与技能'。"  
+            },  
+              
+            // 场景二：基金分析  
+            {  
+                scenario: "场景二：量化基金与投资分析",  
+                text: "一个名为“评估科技类公募基金”的能力模块。内含：<br>1. 规则：'如果基金经理从业少于3年，扣20分'<br>2. 附件：2024年半导体行业研报.txt<br>3. 指标说明元数据",  
+                answer: "Skill",  
+                explanation: "正确！这是 <b>Skill</b>。它封装了基金分析的业务逻辑、评估标准（Instruction）和背景知识（附件），告诉Agent“应该怎么分析”，而不仅仅是提供数据。"  
+            },  
+            {  
+                scenario: "场景二：量化基金与投资分析",  
+                text: "一段 Python 代码 `get_max_drawdown(nav_list)`，输入一只基金过去一年的净值列表，返回它的历史最大回撤百分比。",  
+                answer: "Tool",  
+                explanation: "正确！这是 <b>Tool</b>。它是一个典型的数据处理工具（Function Call），功能单一且明确，不包含复杂的业务指导思想。"  
+            },  
+            {  
+                scenario: "场景二：量化基金与投资分析",  
+                text: "一个部署在本地的标准化服务，它使得大模型能够合规地监听并读取彭博终端 (Bloomberg Terminal) 的实时Tick行情数据流。",  
+                answer: "MCP",  
+                explanation: "正确！这是 <b>MCP</b>。它解决的是数据源连接与上下文提供的问题，通过标准化协议打破了大模型与外部金融系统（彭博终端）之间的隔离墙。"  
+            }  
+        ];  
+  
+        let currentIndex = 0;  
+        let score = 0;  
+  
+        const scenarioTitleEl = document.getElementById("scenario-title");  
+        const questionTextEl = document.getElementById("question-text");  
+        const feedbackEl = document.getElementById("feedback");  
+        const nextBtn = document.getElementById("next-btn");  
+        const optionsEl = document.getElementById("options");  
+        const scoreEl = document.getElementById("score");  
+        const gameBoard = document.getElementById("game-board");  
+  
+        function loadQuestion() {  
+            const currentQ = questions[currentIndex];  
+            scenarioTitleEl.textContent = currentQ.scenario;  
+            questionTextEl.innerHTML = currentQ.text;  
+              
+            feedbackEl.style.display = "none";  
+            nextBtn.style.display = "none";  
+            optionsEl.style.display = "flex";  
+              
+            // 稍微改变卡片背景色增加动感  
+            questionTextEl.style.transform = "scale(0.98)";  
+            setTimeout(() => {  
+                questionTextEl.style.transform = "scale(1)";  
+            }, 100);  
+        }  
+  
+        function checkAnswer(selectedType) {  
+            const currentQ = questions[currentIndex];  
+            optionsEl.style.display = "none"; // 隐藏选项  
+            feedbackEl.style.display = "block";  
+            nextBtn.style.display = "inline-block";  
+  
+            if (selectedType === currentQ.answer) {  
+                score++;  
+                scoreEl.textContent = score;  
+                feedbackEl.className = "feedback success";  
+                feedbackEl.innerHTML = "🎉 " + currentQ.explanation;  
+            } else {  
+                feedbackEl.className = "feedback error";  
+                feedbackEl.innerHTML = `❌ 选错了，正确答案是 <b>${currentQ.answer}</b>。<br><br>${currentQ.explanation}`;  
+            }  
+        }  
+  
+        function nextQuestion() {  
+            currentIndex++;  
+            if (currentIndex < questions.length) {  
+                loadQuestion();  
+            } else {  
+                showEndScreen();  
+            }  
+        }  
+  
+        function showEndScreen() {  
+            scenarioTitleEl.textContent = "🎉 挑战完成！";  
+              
+            let evaluation = "";  
+            if(score === 6) evaluation = "太棒了！你完美掌握了Tool、MCP和Skill的区别，具备了顶尖Agent架构师的潜质！";  
+            else if(score >= 4) evaluation = "做得不错！你已经理解了大部分概念，只差一点点就能融会贯通。";  
+            else evaluation = "继续加油！建议重新阅读顶部的概念定义，多体会它们在应用层面的不同。";  
+  
+            questionTextEl.innerHTML = `  
+                <div style="text-align: center;">  
+                    <h2>最终得分: ${score} / 6</h2>  
+                    <p>${evaluation}</p>  
+                </div>  
+            `;  
+              
+            feedbackEl.style.display = "none";  
+            nextBtn.style.display = "inline-block";  
+            nextBtn.textContent = "重新开始 ↺";  
+            nextBtn.onclick = () => {  
+                currentIndex = 0;  
+                score = 0;  
+                scoreEl.textContent = score;  
+                nextBtn.textContent = "下一题 ➔";  
+                nextBtn.onclick = nextQuestion;  
+                loadQuestion();  
+            };  
+        }  
+  
+        // 初始化游戏  
+        loadQuestion();  
+    </script>  
+</body>  
+</html>  
