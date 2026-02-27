@@ -1,0 +1,243 @@
+<!DOCTYPE html>  
+<html lang="zh-CN">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Sub-agent 调度概念交互演示</title>  
+    <style>  
+        body {  
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;  
+            background-color: #f4f7f6;  
+            margin: 0;  
+            padding: 20px;  
+            display: flex;  
+            justify-content: center;  
+            height: 100vh;  
+            box-sizing: border-box;  
+        }  
+        .container {  
+            display: flex;  
+            width: 100%;  
+            max-width: 1000px;  
+            background: #fff;  
+            border-radius: 12px;  
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);  
+            overflow: hidden;  
+        }  
+        /* 聊天区域 */  
+        .chat-section {  
+            flex: 2;  
+            display: flex;  
+            flex-direction: column;  
+            border-right: 1px solid #ddd;  
+        }  
+        .chat-header {  
+            background: #4a90e2;  
+            color: white;  
+            padding: 15px;  
+            text-align: center;  
+            font-weight: bold;  
+            font-size: 1.1em;  
+        }  
+        .chat-box {  
+            flex: 1;  
+            padding: 20px;  
+            overflow-y: auto;  
+            display: flex;  
+            flex-direction: column;  
+            gap: 15px;  
+            background-color: #fafafa;  
+        }  
+        .message {  
+            max-width: 70%;  
+            padding: 12px 16px;  
+            border-radius: 15px;  
+            line-height: 1.5;  
+            position: relative;  
+            animation: fadeIn 0.3s ease-in-out;  
+        }  
+        @keyframes fadeIn {  
+            from { opacity: 0; transform: translateY(10px); }  
+            to { opacity: 1; transform: translateY(0); }  
+        }  
+        /* 左侧：用户 */  
+        .msg-user {  
+            align-self: flex-start;  
+            background-color: #e9ecef;  
+            color: #333;  
+            border-bottom-left-radius: 2px;  
+        }  
+        /* 右侧：机器人 (Main Agent) */  
+        .msg-bot {  
+            align-self: flex-end;  
+            background-color: #d1e7dd;  
+            color: #0f5132;  
+            border-bottom-right-radius: 2px;  
+        }  
+        /* 操作区 */  
+        .controls {  
+            padding: 15px;  
+            background: #fff;  
+            border-top: 1px solid #ddd;  
+            text-align: center;  
+        }  
+        button {  
+            background: #4a90e2;  
+            color: white;  
+            border: none;  
+            padding: 12px 24px;  
+            border-radius: 25px;  
+            font-size: 1em;  
+            cursor: pointer;  
+            transition: background 0.2s;  
+            width: 80%;  
+        }  
+        button:hover {  
+            background: #357abd;  
+        }  
+        button:disabled {  
+            background: #ccc;  
+            cursor: not-allowed;  
+        }  
+          
+        /* 后台监控区域 */  
+        .system-section {  
+            flex: 1;  
+            background: #2b2b2b;  
+            color: #00ff00;  
+            padding: 20px;  
+            font-family: 'Courier New', Courier, monospace;  
+            display: flex;  
+            flex-direction: column;  
+        }  
+        .sys-header {  
+            color: #fff;  
+            border-bottom: 1px dashed #555;  
+            padding-bottom: 10px;  
+            margin-bottom: 15px;  
+        }  
+        .status-card {  
+            background: #1a1a1a;  
+            padding: 15px;  
+            border-radius: 8px;  
+            margin-bottom: 15px;  
+            border-left: 4px solid #555;  
+        }  
+        .status-card.active-main { border-color: #4a90e2; }  
+        .status-card.active-sub { border-color: #f39c12; }  
+        .status-card.done-sub { border-color: #2ecc71; }  
+          
+        .spinner {  
+            display: inline-block;  
+            animation: spin 1s linear infinite;  
+        }  
+        @keyframes spin { 100% { transform: rotate(360deg); } }  
+    </style>  
+</head>  
+<body>  
+  
+<div class="container">  
+    <!-- 聊天交互区 -->  
+    <div class="chat-section">  
+        <div class="chat-header">对话界面 (左侧用户，右侧主Agent)</div>  
+        <div class="chat-box" id="chat-box">  
+            <div class="message msg-bot">你好！我是你的主理 Agent。今天有什么我可以帮你的吗？</div>  
+        </div>  
+        <div class="controls">  
+            <button id="next-btn" onclick="nextStep()">点击扮演用户：发送请求</button>  
+        </div>  
+    </div>  
+  
+    <!-- 后台监控区 -->  
+    <div class="system-section">  
+        <div class="sys-header">💻 系统底层调度监控</div>  
+        <div class="status-card active-main" id="main-agent-status">  
+            <strong>[Main Agent]</strong><br>  
+            状态: 空闲 (监听用户输入)  
+        </div>  
+        <div class="status-card" id="sub-agent-status" style="opacity: 0.5;">  
+            <strong>[Sub-agent (数据分析)]</strong><br>  
+            状态: 未实例化  
+        </div>  
+    </div>  
+</div>  
+  
+<script>  
+    const steps = [  
+        {  
+            user: "帮我安排一下去东京旅游的行程。另外，我这里有一份100页的年度财务报表，你也帮我深度分析一下并画出图表。",  
+            bot: "好的！财务报表分析需要处理大量数据，大约需要几分钟。为了不耽误我们聊天，我将创建一个【Sub-agent（子智能体）】在后台处理报表。<br><br>我们现在可以继续聊你的东京行程。你喜欢什么类型的景点？",  
+            sysMain: "状态: 处理对话，已调度工具箱",  
+            sysSub: "状态: <span class='spinner'>⚙️</span> 初始化中... 接管财务报表任务",  
+            subClass: "active-sub"  
+        },  
+        {  
+            user: "那太好了，我不喜欢等待！东京的话，我想去秋叶原和新宿。",  
+            bot: "没问题，我已经为你把秋叶原和新宿加入了行程。我们可以先订机票，然后再选酒店。你看这样安排可以吗？（此时后台分析并未停止）",  
+            sysMain: "状态: 与用户进行上下文交互",  
+            sysSub: "状态: <span class='spinner'>⚙️</span> 正在读取第 45/100 页数据...",  
+            subClass: "active-sub"  
+        },  
+        {  
+            user: "可以的，机票帮我选明天早上的就行。",  
+            bot: "机票已锁定明天上午9点的航班。🏨 酒店的话，新宿附近有一家...<br><br><i>🔔 叮！收到后台回调消息。</i><br><br>顺便说一下，我的 Sub-agent 已经完成了100页财报的分析任务！分析结果已生成图表并发送到您的邮箱，我们可以随时查看。我们现在继续确认酒店吗？",  
+            sysMain: "状态: 接收 Sub-agent 回调，融合信息并回复",  
+            sysSub: "状态: ✅ 任务完成，实例已销毁，释放资源",  
+            subClass: "done-sub"  
+        }  
+    ];  
+  
+    let currentStep = 0;  
+    const chatBox = document.getElementById('chat-box');  
+    const nextBtn = document.getElementById('next-btn');  
+    const mainStatus = document.getElementById('main-agent-status');  
+    const subStatus = document.getElementById('sub-agent-status');  
+  
+    function nextStep() {  
+        if (currentStep >= steps.length) {  
+            nextBtn.innerText = "演示结束";  
+            nextBtn.disabled = true;  
+            return;  
+        }  
+  
+        const stepData = steps[currentStep];  
+        nextBtn.disabled = true;  
+        nextBtn.innerText = "Agent 思考中...";  
+  
+        // 1. 显示用户消息 (左侧)  
+        appendMessage(stepData.user, 'msg-user');  
+          
+        // 模拟网络延迟  
+        setTimeout(() => {  
+            // 2. 显示机器人消息 (右侧)  
+            appendMessage(stepData.bot, 'msg-bot');  
+              
+            // 3. 更新系统监控状态  
+            mainStatus.innerHTML = `<strong>[Main Agent]</strong><br>${stepData.sysMain}`;  
+            subStatus.style.opacity = 1;  
+            subStatus.className = `status-card ${stepData.subClass}`;  
+            subStatus.innerHTML = `<strong>[Sub-agent (数据分析)]</strong><br>${stepData.sysSub}`;  
+  
+            currentStep++;  
+              
+            // 准备下一步按钮  
+            if (currentStep < steps.length) {  
+                nextBtn.innerText = "点击扮演用户：继续回复";  
+                nextBtn.disabled = false;  
+            } else {  
+                nextBtn.innerText = "演示结束";  
+            }  
+        }, 1200);  
+    }  
+  
+    function appendMessage(text, className) {  
+        const msgDiv = document.createElement('div');  
+        msgDiv.className = `message ${className}`;  
+        msgDiv.innerHTML = text;  
+        chatBox.appendChild(msgDiv);  
+        chatBox.scrollTop = chatBox.scrollHeight;  
+    }  
+</script>  
+  
+</body>  
+</html>  
