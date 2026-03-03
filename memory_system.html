@@ -1,0 +1,415 @@
+这是一份为您量身定制的单文件网页代码（包含 HTML, CSS 和 JavaScript）。
+
+为了契合**“橙黄色调、动漫风格、轻松的大脑遨游感”**，我使用了温暖的渐变色背景、漂浮的“记忆光球”动画、圆润的字体和卡片式设计。题目设计严格遵守您提供的 Openclaw 记忆系统文档，按照**“两道判断、三道选择、一道开放题”**由易到难排列。
+
+您可以直接将以下代码保存为 `index.html` 文件，然后在浏览器中打开即可体验：
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 Openclaw 记忆系统大冒险！</title>
+    <!-- 引入圆润的字体，增加动漫轻松感 -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-orange: #FF8C00;
+            --light-orange: #FFA500;
+            --yellow: #FFD700;
+            --bg-gradient: linear-gradient(135deg, #FFEFBA 0%, #FFFFFF 100%);
+            --text-main: #5D4037;
+            --card-bg: rgba(255, 255, 255, 0.85);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', 'Microsoft YaHei', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 大脑遨游的背景漂浮物（记忆光球） */
+        .memory-bubble {
+            position: fixed;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,215,0,0.8) 0%, rgba(255,140,0,0.4) 100%);
+            box-shadow: 0 0 20px rgba(255, 140, 0, 0.5);
+            animation: float 15s infinite ease-in-out;
+            z-index: -1;
+        }
+        .b1 { width: 100px; height: 100px; left: 10%; top: 20%; animation-duration: 12s; }
+        .b2 { width: 60px; height: 60px; left: 80%; top: 50%; animation-duration: 18s; animation-delay: 2s; }
+        .b3 { width: 150px; height: 150px; left: 60%; top: 80%; animation-duration: 20s; animation-delay: 5s; }
+        .b4 { width: 40px; height: 40px; left: 20%; top: 70%; animation-duration: 10s; }
+
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); opacity: 0.6; }
+            50% { transform: translateY(-100px) scale(1.1); opacity: 0.9; }
+            100% { transform: translateY(0) scale(1); opacity: 0.6; }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: popIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        h1 {
+            font-size: 2.8em;
+            color: var(--primary-orange);
+            text-shadow: 2px 2px 0px var(--yellow), 4px 4px 0px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            font-size: 1.2em;
+            color: #8D6E63;
+            font-weight: bold;
+        }
+
+        /* 卡片样式 */
+        .question-card {
+            background: var(--card-bg);
+            border: 4px solid var(--light-orange);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 20px rgba(255, 140, 0, 0.15);
+            transition: transform 0.3s, box-shadow 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .question-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px rgba(255, 140, 0, 0.25);
+        }
+
+        .level-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            background: var(--yellow);
+            color: #d35400;
+            font-weight: 900;
+            border-radius: 15px;
+            font-size: 0.8em;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        /* 选项样式 */
+        .options label {
+            display: block;
+            background: #FFF8E1;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            font-weight: 700;
+        }
+
+        .options label:hover {
+            background: #FFE082;
+            transform: translateX(5px);
+        }
+
+        .options input[type="radio"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+            accent-color: var(--primary-orange);
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            border: 2px solid var(--light-orange);
+            border-radius: 12px;
+            padding: 15px;
+            font-family: inherit;
+            font-size: 1em;
+            box-sizing: border-box;
+            resize: vertical;
+            background: #FFF8E1;
+            color: var(--text-main);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-orange);
+            box-shadow: 0 0 10px rgba(255, 140, 0, 0.3);
+        }
+
+        /* 提交按钮 */
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, var(--primary-orange), var(--yellow));
+            color: white;
+            font-size: 1.5em;
+            font-weight: 900;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(255, 140, 0, 0.3);
+            transition: all 0.3s;
+            margin-top: 30px;
+        }
+
+        .submit-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 20px rgba(255, 140, 0, 0.4);
+        }
+
+        /* 结果遮罩层 */
+        #result-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .result-content {
+            background: white;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            border: 5px solid var(--yellow);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .result-content h2 {
+            color: var(--primary-orange);
+            font-size: 2em;
+            margin-top: 0;
+        }
+
+        .feedback-item {
+            text-align: left;
+            background: #FFF8E1;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 5px solid var(--primary-orange);
+        }
+
+        .close-btn {
+            margin-top: 20px;
+            padding: 10px 30px;
+            background: var(--light-orange);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 漂浮的大脑记忆光球 -->
+    <div class="memory-bubble b1"></div>
+    <div class="memory-bubble b2"></div>
+    <div class="memory-bubble b3"></div>
+    <div class="memory-bubble b4"></div>
+
+    <div class="container">
+        <header>
+            <h1>🧠 潜入！Openclaw 记忆星海</h1>
+            <p class="subtitle">✨ 准备好在智能体的脑海中冲浪了吗？完成以下测试吧！✨</p>
+        </header>
+
+        <form id="quiz-form">
+            
+            <!-- 判断题 1 -->
+            <div class="question-card">
+                <div class="level-badge">⭐ 轻松热身 (判断题)</div>
+                <div class="question-text">1. 在 Openclaw 的设定中，“上下文 (Context)” 是永久保存在硬盘上的，且非常便宜；而“记忆 (Memory)” 则是短暂的、受窗口限制的。</div>
+                <div class="options">
+                    <label><input type="radio" name="q1" value="A"> A. 正确的！就是这样。</label>
+                    <label><input type="radio" name="q1" value="B"> B. 错误！刚好说反啦。</label>
+                </div>
+            </div>
+
+            <!-- 判断题 2 -->
+            <div class="question-card">
+                <div class="level-badge">⭐ 轻松热身 (判断题)</div>
+                <div class="question-text">2. 当 Openclaw 的上下文快被塞满（接近上限）时，它会触发“压缩 (Compaction)”，把早期对话变成简短的摘要，并且会保留最近的对话不动。</div>
+                <div class="options">
+                    <label><input type="radio" name="q2" value="A"> A. 没错！它非常聪明。</label>
+                    <label><input type="radio" name="q2" value="B"> B. 不对，它会直接删除所有历史记录。</label>
+                </div>
+            </div>
+
+            <!-- 选择题 1 -->
+            <div class="question-card">
+                <div class="level-badge">⭐⭐ 渐入佳境 (单选题)</div>
+                <div class="question-text">3. 智能体的“双层记忆系统”就像两个不同的大脑抽屉，它们分别是什么？</div>
+                <div class="options">
+                    <label><input type="radio" name="q3" value="A"> A. 内存 (RAM) 与 显存 (VRAM)</label>
+                    <label><input type="radio" name="q3" value="B"> B. 第1层：每日日志 (今日笔记)；第2层：长期记忆 (精选知识 MEMORY.md)</label>
+                    <label><input type="radio" name="q3" value="C"> C. 内部记忆 与 云端云盘</label>
+                    <label><input type="radio" name="q3" value="D"> D. 短期上下文 与 聊天缓存</label>
+                </div>
+            </div>
+
+            <!-- 选择题 2 -->
+            <div class="question-card">
+                <div class="level-badge">⭐⭐⭐ 脑力激荡 (单选题)</div>
+                <div class="question-text">4. 当 Openclaw 使用 <code>memory_search</code> 寻找旧记忆时，它使用的是哪种搜索策略？</div>
+                <div class="options">
+                    <label><input type="radio" name="q4" value="A"> A. 纯粹的 BM25 关键词匹配，只找一模一样的字。</label>
+                    <label><input type="radio" name="q4" value="B"> B. 纯粹的向量搜索，只靠“意念”感知相似度。</label>
+                    <label><input type="radio" name="q4" value="C"> C. 掷骰子随机读取以前的文件。</label>
+                    <label><input type="radio" name="q4" value="D"> D. 混合搜索！结合了向量语义得分 (70%) 和 BM25关键词得分 (30%)。</label>
+                </div>
+            </div>
+
+            <!-- 选择题 3 -->
+            <div class="question-card">
+                <div class="level-badge">⭐⭐⭐⭐ 大脑深潜 (单选题)</div>
+                <div class="question-text">5. Openclaw 是如何把巨大的 Markdown 文本索引成本地可搜索数据的？它用到了什么核心数据库技术？</div>
+                <div class="options">
+                    <label><input type="radio" name="q5" value="A"> A. 昂贵的外部 Pinecone 向量数据库。</label>
+                    <label><input type="radio" name="q5" value="B"> B. 仅仅保存在内存字典里，重启就没了。</label>
+                    <label><input type="radio" name="q5" value="C"> C. 使用轻量级 SQLite，结合 sqlite-vec (查向量) 和 FTS5 (查文本)。</label>
+                    <label><input type="radio" name="q5" value="D"> D. 完全依赖 OpenAI 的后台数据库。</label>
+                </div>
+            </div>
+
+            <!-- 开放题 -->
+            <div class="question-card">
+                <div class="level-badge">🌟 灵魂拷问 (开放题)</div>
+                <div class="question-text">6. Openclaw 的记忆系统信奉“搜索优于注入 (Search over Injection)”。结合你对前面知识的理解，你觉得“按需搜索记忆”比起“每次对话都把整个 MEMORY.md 塞给模型”，有什么明显的优势呢？（发挥你的想象力吧！）</div>
+                <textarea id="q6" placeholder="在这里写下你的高见...（比如关于成本、速度或者AI的专注力等方面）"></textarea>
+            </div>
+
+            <button type="button" class="submit-btn" onclick="submitQuiz()">🚀 提交数据，返回现实！</button>
+        </form>
+    </div>
+
+    <!-- 结果弹窗 -->
+    <div id="result-modal">
+        <div class="result-content">
+            <h2 id="result-title">🎉 分析完成！</h2>
+            <h3 id="score-text" style="color: #d35400;"></h3>
+            <div id="feedback-container"></div>
+            <button class="close-btn" onclick="closeModal()">关闭</button>
+        </div>
+    </div>
+
+    <script>
+        // 正确答案配置
+        const answers = {
+            q1: 'B', // 错误，刚好说反啦
+            q2: 'A', // 没错
+            q3: 'B', // 每日日志与长期记忆
+            q4: 'D', // 混合搜索
+            q5: 'C'  // SQLite + sqlite-vec + FTS5
+        };
+
+        const explanations = {
+            q1: "记忆(Memory)是存磁盘上、廉价且持久的；上下文(Context)才是昂贵且临时的。",
+            q2: "触碰上下文上限时，系统会压缩早期对话成摘要，并无缝衔接近期上下文，这是系统的核心机制之一！",
+            q3: "第1层是每日追加的 YYYY-MM-DD.md，第2层是沉淀的长期记忆 MEMORY.md。",
+            q4: "Openclaw 采用的是 70/30 权重的混合搜索，既懂你的“言外之意”(语义)，也不会放过“精准字眼”(关键词)。",
+            q5: "Openclaw 主打轻量化和本地化，依赖于强大的 SQLite 以及它的扩展 sqlite-vec 和 FTS5 引擎。"
+        };
+
+        function submitQuiz() {
+            let score = 0;
+            let feedbackHTML = "";
+            let allAnswered = true;
+
+            // 检查前5道客观题
+            for(let i = 1; i <= 5; i++) {
+                const qName = 'q' + i;
+                const selected = document.querySelector(`input[name="${qName}"]:checked`);
+                
+                if(!selected) {
+                    allAnswered = false;
+                    break;
+                }
+
+                const isCorrect = selected.value === answers[qName];
+                if(isCorrect) score++;
+
+                feedbackHTML += `
+                    <div class="feedback-item">
+                        <strong>第 ${i} 题：</strong> ${isCorrect ? '✅ 答对啦！' : '❌ 哎呀，选错了。'}<br>
+                        <span style="font-size:0.9em; color:#666;">📝 脑电波解析：${explanations[qName]}</span>
+                    </div>
+                `;
+            }
+
+            const openAnswer = document.getElementById('q6').value.trim();
+            if(!allAnswered || openAnswer === "") {
+                alert("✨ 大脑遨游中断：请把所有题目（包括最后一题）都填完再提交哦！");
+                return;
+            }
+
+            // 添加开放题反馈
+            feedbackHTML += `
+                <div class="feedback-item" style="border-left-color: var(--yellow);">
+                    <strong>第 6 题 (开放题分析)：</strong><br>
+                    <span style="font-size:0.9em; color:#666;">💡 你的想法很有趣！按需搜索不仅大大<strong>节省了 API Token 成本</strong>，提高了<strong>响应速度</strong>，而且能让 AI 的“注意力”更加集中在当前问题上，不会被海量无关的旧记忆干扰判断。这正是“搜索优于注入”的智慧！</span>
+                </div>
+            `;
+
+            // 设置称号和分数
+            const scoreText = document.getElementById('score-text');
+            const resultTitle = document.getElementById('result-title');
+            scoreText.innerText = `客观题得分：${score} / 5 分`;
+
+            if(score === 5) {
+                resultTitle.innerText = "🏆 记忆系统大师！";
+            } else if(score >= 3) {
+                resultTitle.innerText = "🌟 熟练的潜游者！";
+            } else {
+                resultTitle.innerText = "🌱 萌新冲浪员，继续加油！";
+            }
+
+            document.getElementById('feedback-container').innerHTML = feedbackHTML;
+            document.getElementById('result-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('result-modal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
+```
